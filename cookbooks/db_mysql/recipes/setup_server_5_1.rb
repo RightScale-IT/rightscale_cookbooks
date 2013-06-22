@@ -1,12 +1,11 @@
 #
 # Cookbook Name:: db_mysql
 #
-# Copyright RightScale, Inc. All rights reserved.
-# All access and use subject to the RightScale Terms of Service available at
-# http://www.rightscale.com/terms.php and, if applicable, other agreements
-# such as a RightScale Master Subscription Agreement.
+# Copyright RightScale, Inc. All rights reserved.  All access and use subject to the
+# RightScale Terms of Service available at http://www.rightscale.com/terms.php and,
+# if applicable, other agreements such as a RightScale Master Subscription Agreement.
 
-rightscale_marker
+rightscale_marker :begin
 
 version = "5.1"
 node[:db][:version] = version
@@ -55,3 +54,5 @@ node[:db][:init_timeout] = node[:db_mysql][:init_timeout]
 node[:db][:info_file_options] = ["mysql -V", "cat /etc/mysql/conf.d/my.cnf"]
 node[:db][:info_file_location] = "/etc/mysql"
 log "  Using MySQL service name: #{node[:db_mysql][:service_name]}"
+
+rightscale_marker :end
