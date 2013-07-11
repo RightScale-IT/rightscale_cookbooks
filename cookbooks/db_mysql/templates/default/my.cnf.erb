@@ -70,9 +70,9 @@ query_cache_size        = <%= node[:db_mysql][:tunable][:query_cache_size] %>
 #
 # * Logging and Replication
 #
-#<%= node[:db_mysql][:log] %>
-#<%= node[:db_mysql][:log_error] %>
-#<%= node[:db_mysql][:tunable][:log_slow_queries] %>
+<%= node[:db_mysql][:log] %>
+<%= node[:db_mysql][:log_error] %>
+<%= node[:db_mysql][:tunable][:log_slow_queries] %>
 slow_query_log_file     = /var/log/mysql/mysql-slow.log
 <%= node[:db_mysql][:tunable][:long_query_time] %>
 log-queries-not-using-indexes
