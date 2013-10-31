@@ -336,7 +336,7 @@ action :install_client do
       },
       "ubuntu" => {
         "10.04" => [],
-        "default" => ["libmariadbclient-dev", "mariadb-client-5.5", "libmysqlclient18=5.5.32+maria-1~precise", "mysql-common=5.5.32+maria-1~precise"]
+        "default" => ["libmysqlclient18=5.5.32+maria-1~precise", "mysql-common=5.5.32+maria-1~precise", "libmariadbclient-dev", "mariadb-client-5.5"]
       },
       "default" => []
     )
