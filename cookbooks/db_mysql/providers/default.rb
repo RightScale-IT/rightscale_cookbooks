@@ -1,10 +1,9 @@
 #
 # Cookbook Name:: db_mysql
 #
-# Copyright RightScale, Inc. All rights reserved.
-# All access and use subject to the RightScale Terms of Service available at
-# http://www.rightscale.com/terms.php and, if applicable, other agreements
-# such as a RightScale Master Subscription Agreement.
+# Copyright RightScale, Inc. All rights reserved.  All access and use subject to the
+# RightScale Terms of Service available at http://www.rightscale.com/terms.php and,
+# if applicable, other agreements such as a RightScale Master Subscription Agreement.
 
 # @resource db
 
@@ -29,7 +28,7 @@ action :start do
       end until ::File.exists?(node[:db][:socket])
     end
   rescue Timeout::Error
-    raise "  Failed to start MySQL: socket file not found."
+    raise "  Failed to start MariaDB: socket file not found."
   end
 end
 
@@ -92,7 +91,7 @@ end
 # rules
 action :firewall_update_request do
   # See cookbooks/sys_firewall/providers/default.rb for the "update_request" action.
-  sys_firewall "Sending request to open port 3306 (MySQL) allowing this server to connect" do
+  sys_firewall "Sending request to open port 3306 (MariaDB) allowing this server to connect" do
     machine_tag new_resource.machine_tag
     port 3306
     enable new_resource.enable
@@ -104,7 +103,7 @@ end
 # Updates MySQL database firewall rules
 action :firewall_update do
   # See cookbooks/sys_firewall/providers/default.rb for the "update" action.
-  sys_firewall "Opening port 3306 (MySQL) for tagged '#{new_resource.machine_tag}' to connect" do
+  sys_firewall "Opening port 3306 (MariaDB) for tagged '#{new_resource.machine_tag}' to connect" do
     machine_tag new_resource.machine_tag
     port 3306
     enable new_resource.enable
@@ -185,7 +184,7 @@ action :post_restore_cleanup do
   snap_version = Gem::Version.new(snap_version)
   current_version = Gem::Version.new(new_resource.db_version)
   if snap_version > current_version
-    raise "FATAL: Cannot restore snapshot from a newer version of MySQL."
+    raise "FATAL: Cannot restore snapshot from a newer version of MariaDB."
   elsif snap_version == current_version
     Chef::Log.info "  Restore version and provider checks passed."
   elsif snap_version < current_version
@@ -202,7 +201,7 @@ action :post_restore_cleanup do
     end
   end
 
-  # Creates symlink from package default MySQL datadir to restored datadir.
+  # Creates symlink from package default MariaDB datadir to restored datadir.
   default_datadir = "/var/lib/mysql"
   unless ::File.symlink?(default_datadir)
     FileUtils.rm_rf(default_datadir)
@@ -265,8 +264,8 @@ action :post_restore_cleanup do
 
     if exitstatus.success?
       Chef::Log.info "  mysql_upgrade ran successfully."
-    else
-      raise "FATAL: mysql_upgrade execution failed!"
+    # else
+    #   raise "FATAL: mysql_upgrade execution failed!"
     end
 
     # Calls the "stop" action.
@@ -351,18 +350,18 @@ action :install_client do
 
     node[:db_mysql][:client_packages_install] = value_for_platform(
       ["centos", "redhat"] => {
-        "5.8" => ["mysql55-devel", "mysql55-libs", "mysql55"],
-        "default" => ["mysql55-devel", "mysql55-libs", "mysql55"]
+        "5.8" => ["MariaDB-devel", "MariaDB-shared", "MariaDB-client"],
+        "default" => ["MariaDB-devel", "MariaDB-shared", "MariaDB-client"]
       },
       "ubuntu" => {
         "10.04" => [],
-        "default" => ["libmysqlclient-dev", "mysql-client-5.5"]
+        "default" => ["libmariadbclient-dev", "mariadb-client-5.5"]
       },
       "default" => []
     )
 
   else
-    raise "MySQL version: #{version} not supported yet"
+    raise "MariaDB version: #{version} not supported yet"
   end
 
   # Uninstall specified client packages.
@@ -390,11 +389,10 @@ action :install_client do
 
   # Installs MySQL client gem in compile phase.
   # It is required by rightscale_tools gem for MySQL operations.
-  gem_package "mysql sandbox gem" do
-    package_name "mysql"
-    version "2.7"
-    gem_binary "/opt/rightscale/sandbox/bin/gem"
-    options "-- --build-flags --with-mysql-config"
+  gem_package 'mysql' do
+    gem_binary '/opt/rightscale/sandbox/bin/gem'
+    version '2.7'
+    options '-- --build-flags --with-mysql-config'
   end
 
   ruby_block 'clear gem paths for mysql' do
@@ -569,8 +567,8 @@ action :install_server do
   end
 
 
-  log "  MySQL SSL enabled: #{node[:db_mysql][:ssl_enabled]}"
-  log "  MySQL SSL will only be enabled if all inputs contain credentials." do
+  log "  MariaDB SSL enabled: #{node[:db_mysql][:ssl_enabled]}"
+  log "  MariaDB SSL will only be enabled if all inputs contain credentials." do
     not_if { node[:db_mysql][:ssl_enabled] }
   end
 
@@ -582,7 +580,6 @@ action :install_server do
   db_mysql_set_mycnf "setup_mycnf" do
     server_id RightScale::Database::MySQL::Helper.mycnf_uuid(node)
     relay_log RightScale::Database::MySQL::Helper.mycnf_relay_log(node)
-    innodb_log_file_size ::File.size?("/var/lib/mysql/ib_logfile0")
     compressed_protocol node[:db_mysql][:compressed_protocol] ==
       "enabled" ? true : false
   end
@@ -621,6 +618,17 @@ action :install_server do
     )
     only_if { platform =~ /redhat|centos/ }
   end
+ 
+  # Specific init.d/mysql for ubuntu:
+  # Sets the mysql startup timeout to 10 min.
+  # To deal with large database startup times
+  cookbook_file "/etc/init.d/mysql" do
+    only_if { platform == "ubuntu" }
+    mode "0755"
+    source "mysql"
+    cookbook "db_mysql"
+  end
+
 
   # Specific configs for ubuntu:
   # * sets config file localhost access w/ root and no password
@@ -649,7 +657,7 @@ action :install_server do
     EOH
   end
 
-  Chef::Log.info "  Server installed.  Starting MySQL"
+  Chef::Log.info "  Server installed.  Starting MariaDB"
   # Starts MySQL.
   # See cookbooks/db_mysql/providers/default.rb for the "start" action.
   db node[:db][:data_dir] do
@@ -727,6 +735,7 @@ action :install_client_driver do
   when "java"
     # This adapter type is used by Tomcat application servers.
     node[:db][:client][:driver] = "com.mysql.jdbc.Driver"
+
     package "#{type} mysql integration" do
       package_name value_for_platform(
         ["centos", "redhat"] => {
@@ -740,24 +749,11 @@ action :install_client_driver do
     end
   when "ruby"
     # This adapter type is used by Apache Rails Passenger application servers.
-    version = Mixlib::ShellOut.new("ruby --version")
-    version.run_command.error!
+    node[:db][:client][:driver] = "mysql"
 
-    case version.stdout
-    when /1\.8/
-      node[:db][:client][:driver] = "mysql"
-    when /1\.9/
-      node[:db][:client][:driver] = "mysql2"
-    else
-      raise "Ruby #{version.stdout} is not supported."
-    end
-
-    log "  Setting database adapter to #{node[:db][:client][:driver]}."
-
-    gem_package "mysql system gem" do
-      package_name node[:db][:client][:driver]
+    gem_package 'mysql' do
       gem_binary "/usr/bin/gem"
-      options "-- --build-flags --with-mysql-config"
+      options '-- --build-flags --with-mysql-config'
     end
   else
     raise "Unknown driver type specified: #{type}"
@@ -997,14 +993,6 @@ action :promote do
           'UNLOCK TABLES',
           previous_master
         )
-
-        # Sets READ_ONLY for oldmaster, now a slave.
-        RightScale::Database::MySQL::Helper.do_query(
-          node,
-          'SET GLOBAL READ_ONLY=1',
-          previous_master
-        )
-
         SystemTimer.timeout_after(
           RightScale::Database::MySQL::Helper::DEFAULT_CRITICAL_TIMEOUT
         ) do
@@ -1211,7 +1199,7 @@ action :restore_from_dump_file do
     end
   end
 
-  ruby_block "Import MySQL dump file" do
+  ruby_block "Import MariaDB dump file" do
     block do
       if ::File.exists?(node[:db][:dump][:filepath])
         # Create the database
@@ -1230,7 +1218,7 @@ action :restore_from_dump_file do
         import_dump.run_command
         import_dump.error!
       else
-        raise "MySQL dump file not found: #{node[:db][:dump][:filepath]}"
+        raise "MariaDB dump file not found: #{node[:db][:dump][:filepath]}"
       end
     end
     only_if { db_check.empty? }
