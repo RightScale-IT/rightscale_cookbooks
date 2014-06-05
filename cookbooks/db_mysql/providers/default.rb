@@ -359,9 +359,6 @@ action :install_client do
       },
       "default" => []
     )
-  else
-    raise "MariaDB version: #{version} not supported yet"
-  end
 
   when "10.0"
     # CentOS/RedHat 6 by default has mysql-libs 5.1 installed as requirement for postfix.
