@@ -29,7 +29,7 @@ GB = 1024
 
 # Convert memory from kB to MB
 mem = memory[:total].to_i / 1024
-Chef::Log.info("  Auto-tuning MySQL parameters.  Total memory: #{mem}M")
+Chef::Log.info("  Auto-tuning MariaDB parameters.  Total memory: #{mem}M")
 one_percent_mem = (mem * 0.01).to_i
 one_percent_str = value_with_units(one_percent_mem, "M", usage)
 eighty_percent_mem = (mem * 0.80).to_i

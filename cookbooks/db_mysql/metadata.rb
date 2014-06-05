@@ -1,8 +1,8 @@
 maintainer       "RightScale, Inc."
 maintainer_email "support@rightscale.com"
 license          "Copyright RightScale, Inc. All rights reserved."
-description      "Provides the MySQL implementation of the 'db' resource to" +
-                 " install and manage MySQL database stand-alone servers and clients."
+description      "Provides the MariaDB implementation of the 'db' resource to" +
+                 " install and manage MariaDB database stand-alone servers and clients."
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "13.5.0"
 
@@ -19,8 +19,11 @@ recipe "db_mysql::setup_server_5_1",
   "Sets the DB MySQL provider. Sets version 5.1 and node variables specific" +
   " to MySQL 5.1."
 recipe "db_mysql::setup_server_5_5",
-  "Sets the DB MySQL provider. Sets version 5.5 and node variables specific" +
-  " to MySQL 5.5."
+  "Sets the DB MariaDB provider. Sets version 5.5 and node variables specific" +
+  " to MariaDB 5.5."
+recipe "db_mysql::setup_server_10_0",
+  "Sets the DB MariaDB provider. Sets version 10.0 and node variables specific" +
+  " to MariaDB 10.0."
 
 attribute "db_mysql",
   :display_name => "General Database Options",
@@ -31,8 +34,8 @@ attribute "db_mysql",
 attribute "db_mysql/server_usage",
   :display_name => "Server Usage",
   :description =>
-    "When set to 'dedicated' all server resources are allocated to MySQL." +
-    " When set to 'shared' less resources are allocated for MySQL" +
+    "When set to 'dedicated' all server resources are allocated to MariaDB." +
+    " When set to 'shared' less resources are allocated for MariaDB" +
     " so that it can be run concurrently with other" +
     " apps like Apache and Rails for example. Example: shared",
   :choice => ["shared", "dedicated"],
@@ -40,79 +43,88 @@ attribute "db_mysql/server_usage",
   :default => "shared",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/log_bin",
-  :display_name => "MySQL Binlog Destination",
+  :display_name => "MariaDB Binlog Destination",
   :description =>
-    "Defines the filename and location of your MySQL stored binlog files." +
-    " Sets the 'log-bin' variable in the MySQL config file." +
+    "Defines the filename and location of your MariaDB stored binlog files." +
+    " Sets the 'log-bin' variable in the MariaDB config file." +
     " Example: /mnt/mysql-binlogs/mysql-bin",
   :required => "optional",
   :default => "/mnt/ephemeral/mysql-binlogs/mysql-bin",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/binlog_format",
-  :display_name => "MySQL Binlog Format",
+  :display_name => "MariaDB Binlog Format",
   :description =>
-    "Defines the format of your MySQL stored binlog files." +
-    " Sets the 'binlog_format' option in the MySQL config file." +
+    "Defines the format of your MariaDB stored binlog files." +
+    " Sets the 'binlog_format' option in the MariaDB config file." +
     " Accepted options: STATEMENT, ROW, and MIXED. Example: MIXED",
   :required => "optional",
   :choice => ["STATEMENT", "ROW", "MIXED"],
   :default => "MIXED",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/tmpdir",
-  :display_name => "MySQL Temp Directory Destination",
+  :display_name => "MariaDB Temp Directory Destination",
   :description =>
-    "Defines the location of your MySQL temp directory." +
-    " Sets the 'tmpdir' variable in the MySQL config file. Example: /tmp",
+    "Defines the location of your MariaDB temp directory." +
+    " Sets the 'tmpdir' variable in the MariaDB config file. Example: /tmp",
   :required => "optional",
   :default => "/mnt/ephemeral/mysqltmp",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/init_timeout",
-  :display_name => "MySQL Init Timeout",
+  :display_name => "MariaDB Init Timeout",
   :description =>
-    "Defines timeout to wait for a MySQL socket connection. Default: 600",
+    "Defines timeout to wait for a MariaDB socket connection. Default: 600",
   :required => "optional",
   :default => "600",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/expire_logs_days",
-  :display_name => "MySQL Expire Logs Days",
+  :display_name => "MariaDB Expire Logs Days",
   :description =>
     "Defines number of days to wait until the log expires. Default: 2",
   :required => "optional",
   :default => "2",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/enable_mysql_upgrade",
   :display_name => "Enable mysql_upgrade",
   :description =>
-    "Run mysql_upgrade if a restore from an older version of MySQL" +
+    "Run mysql_upgrade if a restore from an older version of MariaDB" +
     " is detected. Default: false",
   :required => "optional",
   :choice => ["true", "false"],
   :default => "false",
-  :recipes => ["db_mysql::setup_server_5_5"]
+  :recipes => [
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
+  ]
 
 attribute "db_mysql/compressed_protocol",
   :display_name => "Compression of the slave/master protocol",
@@ -124,7 +136,8 @@ attribute "db_mysql/compressed_protocol",
   :default => "disabled",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/ssl/ca_certificate",
@@ -138,7 +151,8 @@ attribute "db_mysql/ssl/ca_certificate",
   :default => "",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/ssl/master_certificate",
@@ -152,7 +166,8 @@ attribute "db_mysql/ssl/master_certificate",
   :default => "",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/ssl/master_key",
@@ -166,7 +181,8 @@ attribute "db_mysql/ssl/master_key",
   :default => "",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/ssl/slave_certificate",
@@ -180,7 +196,8 @@ attribute "db_mysql/ssl/slave_certificate",
   :default => "",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]
 
 attribute "db_mysql/ssl/slave_key",
@@ -194,5 +211,6 @@ attribute "db_mysql/ssl/slave_key",
   :default => "",
   :recipes => [
     "db_mysql::setup_server_5_1",
-    "db_mysql::setup_server_5_5"
+    "db_mysql::setup_server_5_5",
+    "db_mysql::setup_server_10_0"
   ]

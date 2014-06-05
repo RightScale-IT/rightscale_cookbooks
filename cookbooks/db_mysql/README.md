@@ -1,11 +1,11 @@
-# RightScale MySQL Database Cookbook
+# RightScale MariaDB Database Cookbook
 
 ## DESCRIPTION:
 
 This cookbook is available at [https://github.com/rightscale/rightscale_cookbooks](https://github.com/rightscale/rightscale_cookbooks).
 
-Provides the MySQL implementation of the 'db' resource to install and manage
-MySQL database stand-alone servers and clients.
+Provides the MariaDB implementation of the 'db' resource to install and manage
+MariaDB database stand-alone servers and clients.
 
 ## REQUIREMENTS:
 
@@ -25,20 +25,29 @@ There are no known limitations.
   your runlist. This will pull in generic client inputs, provide provider
   selection input and install client. Set db/provider_type input in
   RightScale ServerTemplate to set provider and version for 'db' resource.
-* To setup a MySQL database client and server, place the following recipes
+* To setup a MariaDB database client and server, place the following recipes
   in order to your runlist:
 
     db_mysql::setup_server_<version>
-      loads the MySQL provider, tuning parameters, as well as other
-      MySQL-specific attributes into the node as inputs.
+      loads the MariaDB provider, tuning parameters, as well as other
+      MariaDB-specific attributes into the node as inputs.
 
     db::install_server
       sets up generic server and client inputs. This will also include
       db::default recipe which installs the client.
 
-  For example: To set up and install MySQL 5.5 client and server
+  For example:
+  
+  To set up and install MariaDB 5.5 client and server
 
     db_mysql::setup_server_5_5
+    db::install_server
+
+  OR
+
+  To set up and install MariaDB 10.0 client and server
+
+    db_mysql::setup_server_10_0
     db::install_server
 
 ## USAGE:
@@ -46,9 +55,9 @@ There are no known limitations.
 ### Basic usage
 
 Once setup, use the recipes in the 'db' cookbook to install and manage your
-MySQL database servers and clients. See the `db/README.md` for usage details.
+MariaDB database servers and clients. See the `db/README.md` for usage details.
 
-### MySQL Tuning and my.cnf
+### MariaDB Tuning and my.cnf
 
 Custom tuning parameters can be applied by overriding the `my.cnf.erb`
 template or by setting the values in the attributes file. For more information
@@ -63,7 +72,7 @@ and an example override repository, please see: [Override Chef Cookbooks][CCDG].
 The 'db' implementation is defined by a Lightweight Provider, which can be
 found in the `providers/default.rb` file.
 
-The ‘read_only’ flag in the MySQL configuration is set by the definition
+The ‘read_only’ flag in the MariaDB configuration is set by the definition
 `db_mysql_set_read_only`. This flag is set to ‘false’ by default
 and changed to ‘true’ while initializing a slave server, and set back to
 ‘false’ when the slave is promoted to a master server.
@@ -79,22 +88,22 @@ generic db attributes, refer to the db cookbook readme.
 ##### General attributes
 
 * `node[:db_mysql][:collectd_master_slave_mode]` -
-  The mode for collectd in MySQL server.
+  The mode for collectd in MariaDB server.
 * `node[:db_mysql][:port]` -
-  The port on which MySQL server listens.
+  The port on which MariaDB server listens.
 * `node[:db_mysql][:log_bin_enabled]` -
   Determines whether binary logging is enabled or disabled.
 * `node[:db_mysql][:datadir]` -
-  The data directory for MySQL server where the database contents are stored.
+  The data directory for MariaDB server where the database contents are stored.
 * `node[:db_mysql][:bind_address]` -
-  The IP address that MySQL server uses to bind. It is set to "0.0.0.0" allowing
+  The IP address that MariaDB server uses to bind. It is set to "0.0.0.0" allowing
   mysql clients/GUI tools to connect from the outside.
 * `node[:db_mysql][:dump][:storage_account_provider]` -
-  The storage account provided MySQL dump backup.
+  The storage account provided MariaDB dump backup.
 * `node[:db_mysql][:dump][:storage_account_id]` -
-  The storage account ID for MySQL dump backup.
+  The storage account ID for MariaDB dump backup.
 * `node[:db_mysql][:dump][:storage_account_secret]` -
-  The storage account secret for MySQL dump backup.
+  The storage account secret for MariaDB dump backup.
 * `node[:db_mysql][:dump][:container]` -
   The container name to be used for dump backup.
 * `node[:db_mysql][:dump][:prefix]` -
@@ -105,12 +114,12 @@ generic db attributes, refer to the db cookbook readme.
 * `node[:db_mysql][:file_ulimit]` -
   A tuning parameter to set maximum open files for mysql and root users.
 * `node[:db_mysql][:backup][:slave][:max_allowed_lag]` -
-  Maximum allowed lag time for MySQL slave backup.
+  Maximum allowed lag time for MariaDB slave backup.
 
 ##### Platform dependent
 
-* `node[:db_mysql][:log]` - The log file location for MySQL server.
-* `node[:db_mysql][:log_error]` - The error log file location for MySQL server.
+* `node[:db_mysql][:log]` - The log file location for MariaDB server.
+* `node[:db_mysql][:log_error]` - The error log file location for MariaDB server.
 
 ## LICENSE:
 

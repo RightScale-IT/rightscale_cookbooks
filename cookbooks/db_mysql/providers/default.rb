@@ -359,10 +359,36 @@ action :install_client do
       },
       "default" => []
     )
-
   else
     raise "MariaDB version: #{version} not supported yet"
   end
+
+  when "10.0"
+    # CentOS/RedHat 6 by default has mysql-libs 5.1 installed as requirement for postfix.
+    # Will uninstall mysql-libs, install mysql55-lib.
+    node[:db_mysql][:client_packages_uninstall] = value_for_platform(
+      ["centos", "redhat"] => {
+        "5.8" => [],
+        "default" => ["mysql-libs"]
+      },
+      "default" => []
+    )
+
+    node[:db_mysql][:client_packages_install] = value_for_platform(
+      ["centos", "redhat"] => {
+        "5.8" => ["MariaDB-devel", "MariaDB-shared", "MariaDB-client"],
+        "default" => ["MariaDB-devel", "MariaDB-shared", "MariaDB-client"]
+      },
+      "ubuntu" => {
+        "10.04" => [],
+        "default" => ["libmariadbclient-dev", "mariadb-client-10.0"]
+      },
+      "default" => []
+    )
+  else
+    raise "MariaDB version: #{version} not supported yet"
+  end
+
 
   # Uninstall specified client packages.
   packages = node[:db_mysql][:client_packages_uninstall]

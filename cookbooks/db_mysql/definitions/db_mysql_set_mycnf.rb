@@ -5,7 +5,7 @@
 # RightScale Terms of Service available at http://www.rightscale.com/terms.php and,
 # if applicable, other agreements such as a RightScale Master Subscription Agreement.
 
-# Sets up my.cnf for configuration file for MySQL database.
+# Sets up my.cnf for configuration file for MariaDB database.
 #
 # @param server_id [String] database server ID
 # @param relay_log [String] slave relay log information

@@ -29,14 +29,23 @@ module RightScale
             Chef::Log.warn "  Please contact Rightscale to upgrade your account."
           end
           mount_point = new_resource.name
-          version = node[:db][:version].to_f > 5.1 ? :mysql55 : :mysql
+          # version = node[:db][:version].to_f > 5.1 ? :mysql55 : :mysql
+          if node[:db][:version].to_f > 5.1 
+            if node[:db][:version].to_f > 5.5
+              version = :mysql10
+            else
+              version = :mysql55
+            end
+          else
+            version = :mysql
+          end
           Chef::Log.info "  Using version: #{version} : #{node[:db][:version]}"
 
           RightScale::Tools::Database.factory(version, new_resource.user, new_resource.password, mount_point, Chef::Log)
         end
 
         # Create numeric UUID
-        # MySQL server_id must be a unique number - use the ip address integer
+        # MariaDB server_id must be a unique number - use the ip address integer
         # representation
         # Duplicate IP's and server_id's may occur with cross cloud replication.
         #
@@ -85,8 +94,8 @@ module RightScale
         # @return [Mysql] MySQL connection
         #
         def self.get_mysql_handle(node, hostname = 'localhost')
-          info_msg = "  MySQL connection to #{hostname}"
-          info_msg << ": opening NEW MySQL connection."
+          info_msg = "  MariaDB connection to #{hostname}"
+          info_msg << ": opening NEW MariaDB connection."
           con = Mysql.new(hostname, node[:db][:admin][:user], node[:db][:admin][:password])
           Chef::Log.info info_msg
           # this raises if the connection has gone away
