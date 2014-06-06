@@ -49,7 +49,9 @@ default[:db_mysql][:tunable][:max_heap_table_size] = value_with_units(32, "M", u
 default[:db_mysql][:tunable][:net_buffer_length] = value_with_units(16, "K", usage)
 default[:db_mysql][:tunable][:read_buffer_size] = value_with_units(1, "M", usage)
 default[:db_mysql][:tunable][:read_rnd_buffer_size] = value_with_units(4, "M", usage)
-default[:db_mysql][:tunable][:log_slow_queries] = "log_slow_queries = /var/log/mysqlslow.log"
+# default[:db_mysql][:tunable][:log_slow_queries] = "log_slow_queries = /var/log/mysqlslow.log"
+default[:db_mysql][:tunable][:slow_query_log] = "slow_query_log = 1"
+default[:db_mysql][:tunable][:slow_query_log_file] = "slow_query_log_file = /var/log/mysqlslow.log"
 default[:db_mysql][:tunable][:long_query_time] = "long_query_time = 5"
 default[:db_mysql][:tunable][:expire_logs_days] = 2
 default[:db_mysql][:tunable][:slave_net_timeout] = 60
