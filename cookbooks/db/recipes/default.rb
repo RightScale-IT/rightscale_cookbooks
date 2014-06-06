@@ -1,4 +1,5 @@
 #
+#
 # Cookbook Name:: db
 #
 # Copyright RightScale, Inc. All rights reserved.
