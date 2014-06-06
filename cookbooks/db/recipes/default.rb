@@ -29,7 +29,7 @@ end
 #
 provider_type = node[:db][:provider_type]
 unless provider_type.empty?
-  database_type = provider_type.match(/^db_([a-z]+)_(\d.\d)/)
+  database_type = provider_type.match(/^db_([a-z]+)_(\d+.\d+)/)
   # Database provider type Ex: db_mysql
   node[:db][:provider] = "db_#{database_type[1]}"
   # Database version number Ex: 5.1
