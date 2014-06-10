@@ -91,6 +91,10 @@ actions :stop
 # Starts the database service. Calls the correct init.d script for the database
 # and platform.
 actions :start
+ 
+# Restarts the database service.
+# Calls the correct init.d script for the database and platform.
+actions :restart
 
 # Logs the status of the database service. Calls the correct init.d script for
 # the database and platform and send the output to the Chef log and RightScale
