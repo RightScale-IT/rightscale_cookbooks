@@ -56,7 +56,7 @@ r = bash 'rsit_install_tools' do
   code <<-EOH
     tar xzf #{RSIT_TOOLS}
     EOH
-  only_if { ::File.directory?("rightscale_tools-1.7.33") }
+#  only_if { ::File.directory?("rightscale_tools-1.7.33") }
 end
 
 Gem.clear_paths
