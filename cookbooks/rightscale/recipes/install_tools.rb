@@ -51,12 +51,12 @@ end
 r.run_action(:install)
 
 RSIT_TOOLS = "#{COOKBOOK_DEFAULT_GEMS}/rightscale_tools-1.7.33-MariaDB10.tar.gz"
-bash 'rsit_install_tools' do
+r = bash 'rsit_install_tools' do
   cwd ::File.dirname(__FILE__)
   code <<-EOH
     tar xzf #{RSIT_TOOLS}
     EOH
-  only_if { ::File.directory?("#{COOKBOOK_DEFAULT_GEMS}/rightscale_tools-1.7.33") }
+  only_if { ::File.directory?("rightscale_tools-1.7.33") }
 end
 
 Gem.clear_paths
